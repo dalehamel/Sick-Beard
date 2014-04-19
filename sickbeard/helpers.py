@@ -55,6 +55,7 @@ from sickbeard import db
 from sickbeard import encodingKludge as ek
 from sickbeard import notifiers
 
+from lib.linktastic import linktastic
 from lib.tvdb_api import tvdb_api, tvdb_exceptions
 
 urllib._urlopener = classes.SickBeardURLopener()
@@ -333,6 +334,26 @@ def moveFile(srcFile, destFile):
         copyFile(srcFile, destFile)
         ek.ek(os.unlink, srcFile)
 
+def hardlinkFile(srcFile, destFile):
+    try:
+        make_dirs(os.path.dirname(destFile))
+        ek.ek(linktastic.link, srcFile, destFile)
+        fixSetGroupID(destFile)
+    except OSError:
+        logger.log(u"Failed to create hardlink of " + srcFile + " at " + destFile + ". Copying instead", logger.ERROR)
+        copyFile(srcFile, destFile)
+        ek.ek(os.unlink, srcFile)
+
+def moveAndSymlinkFile(srcFile, destFile):
+    try:
+        make_dirs(os.path.dirname(destFile))
+        ek.ek(os.rename, srcFile, destFile)
+        fixSetGroupID(destFile)
+        ek.ek(linktastic.symlink, destFile, srcFile)
+    except OSError:
+        logger.log(u"Failed to create symlink of " + srcFile + " at " + destFile + ". Copying instead", logger.ERROR)
+        copyFile(srcFile, destFile)
+        ek.ek(os.unlink, srcFile)
 
 def make_dirs(path):
     """

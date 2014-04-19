@@ -200,7 +200,10 @@ def processDir(dirName, nzbName=None, method=None, recurse=False, pp_options={})
         # as long as the postprocessing was successful delete the old folder unless the config wants us not to
         if process_result:
 
-            remaining_video_files.remove(cur_video_file)
+            if len(videoFiles) == 1 and sickbeard.PROCESS_METHOD == "move" and \
+                ek.ek(os.path.normpath, dirName) != ek.ek(os.path.normpath, sickbeard.TV_DOWNLOAD_DIR) and \
+                len(remainingFolders) == 0:
+                remaining_video_files.remove(cur_video_file)
 
             if not sickbeard.KEEP_PROCESSED_DIR and len(remaining_video_files) == 0 and len(remainingFolders) == 0:
                 if delete_folder(dirName, check_empty=False):

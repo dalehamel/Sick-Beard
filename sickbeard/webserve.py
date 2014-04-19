@@ -803,8 +803,8 @@ class ConfigPostProcessing:
     @cherrypy.expose
     def savePostProcessing(self, naming_pattern=None, naming_multi_ep=None,
                     xbmc_data=None, xbmc_12plus_data=None, mediabrowser_data=None, sony_ps3_data=None, wdtv_data=None, tivo_data=None, mede8er_data=None,
-                    keep_processed_dir=None, process_automatically=None, rename_episodes=None,
-                    move_associated_files=None, tv_download_dir=None, naming_custom_abd=None, naming_abd_pattern=None):
+                    process_method=None, process_automatically=None, rename_episodes=None,
+                    keep_processed_dir=None, move_associated_files=None, tv_download_dir=None, naming_custom_abd=None, naming_abd_pattern=None):
 
         results = []
 
@@ -812,7 +812,6 @@ class ConfigPostProcessing:
         if not config.change_TV_DOWNLOAD_DIR(tv_download_dir):
             results += ["Unable to create directory " + os.path.normpath(tv_download_dir) + ", dir not changed."]
 
-        sickbeard.KEEP_PROCESSED_DIR = config.checkbox_to_value(keep_processed_dir)
         sickbeard.MOVE_ASSOCIATED_FILES = config.checkbox_to_value(move_associated_files)
         sickbeard.RENAME_EPISODES = config.checkbox_to_value(rename_episodes)
 
@@ -824,7 +823,9 @@ class ConfigPostProcessing:
             sickbeard.autoPostProcesserScheduler.silent = True
 
         # Naming
+        sickbeard.PROCESS_METHOD = process_method
         sickbeard.NAMING_CUSTOM_ABD = config.checkbox_to_value(naming_custom_abd)
+
 
         if self.isNamingValid(naming_pattern, naming_multi_ep) != "invalid":
             sickbeard.NAMING_PATTERN = naming_pattern
